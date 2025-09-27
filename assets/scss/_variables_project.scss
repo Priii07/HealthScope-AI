@@ -1,0 +1,25 @@
+// Custom fonts for HealthScope AI
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Override Docsy font variables
+$google_font_name: "Inter";
+$google_font_family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+// Custom font sizes and weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Better line heights
+$line-height-base: 1.6;
+$line-height-sm: 1.4;
+
+// Custom colors for healthcare theme - muted professional palette
+$primary: #1e40af; // Muted professional blue
+$secondary: #64748b; // Neutral gray
+$success: #059669; // Healthcare green
+$info: #0f766e; // Muted teal
+$warning: #d97706; // Orange
+$danger: #dc2626; // Red

@@ -1,0 +1,27 @@
+{
+  "drug_name": "Metformin",
+  "generic_name": "metformin",
+  "pharmacies": [
+    {
+      "name": "CVS",
+      "price": 15.99,
+      "location": "New York"
+    },
+    {
+      "name": "Walgreens",
+      "price": 18.5,
+      "location": "New York"
+    },
+    {
+      "name": "Walmart",
+      "price": 12.99,
+      "location": "New York"
+    },
+    {
+      "name": "Costco",
+      "price": 9.99,
+      "location": "New York"
+    }
+  ],
+  "savings_potential": "Up to $8.51 difference between pharmacies"
+}
