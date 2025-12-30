@@ -12,6 +12,12 @@ Make healthcare data accessible through intelligent research tools that combine 
 
 ## 🚀 Features
 
+### Interactive Analytics Dashboard (Evidence.dev)
+- SQL-based data exploration and visualization
+- Real-time drug data analysis with interactive charts
+- Manufacturer distribution and route analysis
+- Embedded analytics within documentation site
+
 ### Drug Price Research
 - Compare medication prices across pharmacies
 - Find generic alternatives and cost differences
@@ -30,21 +36,74 @@ Make healthcare data accessible through intelligent research tools that combine 
 ## 🏗️ Architecture
 
 ```
-Hugo Documentation Site ←→ Flowise AI Chat Interface
-                              ↓
-                         FDA OpenAPI + Pricing APIs
+┌─────────────────────────────────────────────────────────┐
+│           Hugo Documentation Site (GitHub Pages)         │
+│                                                          │
+│  ┌────────────────┐         ┌──────────────────────┐   │
+│  │  Documentation │         │  Evidence Analytics  │   │
+│  │     Pages      │◄────────┤    Dashboard         │   │
+│  │   (Docsy)      │         │  (/analytics/)       │   │
+│  └────────────────┘         └──────────────────────┘   │
+│                                       ▲                  │
+│                                       │                  │
+└───────────────────────────────────────┼──────────────────┘
+                                        │
+                    ┌───────────────────┴───────────────────┐
+                    │       Data Pipeline (Python)          │
+                    │                                       │
+                    │  ┌─────────────┐    ┌─────────────┐ │
+                    │  │ FDA API     │───▶│  DuckDB     │ │
+                    │  │ fetch_drug_ │    │  Database   │ │
+                    │  │ data.py     │    │             │ │
+                    │  └─────────────┘    └─────────────┘ │
+                    │                            │         │
+                    │                            ▼         │
+                    │                     ┌─────────────┐ │
+                    │                     │  Evidence   │ │
+                    │                     │  Sources    │ │
+                    │                     └─────────────┘ │
+                    └───────────────────────────────────────┘
+                                        ▲
+                                        │
+                    ┌───────────────────┴───────────────────┐
+                    │         External Data Sources         │
+                    │                                       │
+                    │  • FDA OpenFDA API (drug labels)     │
+                    │  • Drug Pricing APIs (planned)       │
+                    │  • Flowise AI (planned)              │
+                    └───────────────────────────────────────┘
 ```
 
+### Components:
+
 - **Documentation Hub** (Hugo + Docsy): Project info, research guides, setup instructions
-- **Conversational AI** (Flowise): Chat interface for drug research queries
-- **Data Sources**: FDA OpenAPI (free) + drug pricing APIs
+- **Analytics Layer** (Evidence.dev): SQL-based BI tool for interactive data visualization
+- **Data Pipeline** (Python): Automated FDA data fetching and DuckDB database management
+- **Data Storage** (DuckDB): Embedded analytics database for fast queries
+- **Conversational AI** (Flowise): Chat interface for drug research queries (planned)
+- **Data Sources**: FDA OpenAPI (free) + drug pricing APIs (planned)
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: Hugo static site with Docsy theme
-- **AI Interface**: Flowise AI for conversational queries
-- **APIs**: FDA OpenAPI, GoodRx API, pharmacy pricing sources
-- **Deployment**: GitHub Pages (docs) + Flowise Cloud/Self-hosted
+### Documentation & Frontend
+- **Hugo Extended** (v0.110+): Static site generator
+- **Docsy Theme**: Professional documentation theme
+- **GitHub Pages**: Static site hosting
+
+### Analytics & Visualization
+- **Evidence.dev**: SQL-based BI and data visualization framework
+- **DuckDB**: Embedded analytical database (OLAP)
+- **Parquet**: Columnar data storage format
+
+### Data Pipeline
+- **Python 3.8+**: Data fetching and processing
+- **FDA OpenFDA API**: Drug label and safety data source
+- **JSON/CSV**: Data interchange formats
+
+### Planned Integrations
+- **Flowise AI**: Conversational interface for natural language queries
+- **GoodRx API**: Drug pricing data source
+- **Pharmacy APIs**: Price comparison sources
 
 ## 📋 Setup Instructions
 
@@ -96,16 +155,62 @@ hugo server
 
 Visit `http://localhost:1313` to view the documentation site.
 
-### 3. Test FDA API Access
-```bash
-# Install Python dependencies
-pip install requests
+### 3. Evidence Analytics Setup
 
-# Test FDA API connection
-python test_fda.py
+#### Install Evidence Dependencies
+```bash
+cd evidence
+npm install
+cd ..
 ```
 
-### 4. Flowise AI Setup (Coming Soon)
+#### Build Analytics Data Pipeline
+```bash
+# Install Python dependencies
+pip install requests duckdb
+
+# Fetch FDA drug data
+python fetch_drug_data.py
+
+# Load data into DuckDB
+python load_to_duckdb.py
+```
+
+#### Run Evidence Dev Server
+```bash
+cd evidence
+npm run dev
+# Opens at http://localhost:3000
+```
+
+#### Build Evidence for Production
+```bash
+cd evidence
+npm run sources  # Process data sources
+npm run build    # Build static site
+cd ..
+
+# Sync to Hugo static directory
+rsync -av --delete evidence/build/ static/analytics/
+```
+
+### 4. Build Complete Site
+```bash
+# Build Hugo site with embedded Evidence analytics
+hugo
+
+# Preview production build
+hugo server
+```
+
+### 5. Automated Build Script
+Use the convenience script to rebuild everything:
+```bash
+chmod +x build-analytics.sh
+./build-analytics.sh
+```
+
+### 6. Flowise AI Setup (Coming Soon)
 - Install Flowise locally or use Flowise Cloud
 - Configure healthcare data workflows
 - Connect to FDA and pricing APIs
@@ -115,17 +220,49 @@ python test_fda.py
 
 ```
 HealthScope-AI/
-├── content/                 # Hugo content
-│   ├── docs/               # Documentation pages
-│   ├── project-plan/       # Development roadmap
-│   └── _index.html         # Homepage
-├── assets/                 # Custom CSS/SCSS
-├── static/                 # Static files
-├── test_fda.py            # FDA API testing script
-├── test_pricing.py        # Pricing data testing script
-├── sample_pricing.json    # Sample pricing data structure
-├── hugo.toml              # Hugo configuration
-└── README.md              # This file
+├── content/                    # Hugo content
+│   └── docs/                   # Documentation pages
+│       ├── analytics/          # Analytics documentation
+│       ├── drug-data/          # Drug data docs
+│       ├── flowise/            # Flowise integration docs
+│       └── setup/              # Setup guides
+│
+├── evidence/                   # Evidence.dev analytics project
+│   ├── pages/                  # Evidence markdown pages
+│   │   ├── index.md            # Analytics home
+│   │   └── fda-drugs.md        # FDA drug dashboard
+│   ├── sources/                # Data source connections
+│   │   ├── fda_data/           # FDA data source
+│   │   │   ├── connection.yaml # CSV connection config
+│   │   │   ├── fda_drugs.csv   # Drug data CSV
+│   │   │   └── healthcare.duckdb # DuckDB database
+│   ├── build/                  # Built Evidence site (gitignored)
+│   ├── node_modules/           # Evidence dependencies (gitignored)
+│   ├── package.json            # Evidence dependencies
+│   └── evidence.config.yaml   # Evidence configuration
+│
+├── static/                     # Hugo static files
+│   └── analytics/              # Built Evidence dashboard (synced from evidence/build)
+│
+├── layouts/                    # Custom Hugo layouts
+│   └── shortcodes/             # Custom Hugo shortcodes
+│       ├── evidence-dashboard.html
+│       ├── drug-table.html
+│       └── flowise.html
+│
+├── data/                       # Hugo data files (Evidence exports)
+│   ├── fda_data/               # FDA drug data (parquet)
+│   └── manifest.json           # Data manifest
+│
+├── fetch_drug_data.py          # FDA API data fetcher
+├── load_to_duckdb.py           # DuckDB data loader
+├── build-analytics.sh          # Automated build script
+├── export-charts.js            # Chart export utility
+├── fda_drug_data.json          # Downloaded FDA data
+│
+├── hugo.toml                   # Hugo configuration
+├── package.json                # Node.js dependencies (Hugo)
+└── README.md                   # This file
 ```
 
 ## 🔌 API Integration
@@ -145,9 +282,12 @@ HealthScope-AI/
 
 This project focuses on:
 - **Healthcare Data Integration**: Working with FDA and pricing APIs
+- **Data Pipeline Development**: Python-based ETL for healthcare data
+- **Analytics & BI**: SQL-based data analysis with Evidence.dev
+- **Embedded Databases**: Using DuckDB for analytical workloads
 - **No-Code AI Development**: Using Flowise for conversational interfaces
 - **Documentation Best Practices**: Professional Hugo site with Docsy
-- **API Design**: RESTful endpoints for healthcare data
+- **Static Site Generation**: Building fast, secure documentation sites
 - **Compliance Awareness**: Healthcare data handling and disclaimers
 
 

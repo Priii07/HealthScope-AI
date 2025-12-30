@@ -13,11 +13,10 @@ This guide walks you through setting up the complete HealthScope AI development 
 
 Before starting, ensure you have:
 
-- **Node.js** (v18 or higher)
-- **Hugo Extended** (v0.110 or higher)
-- **Git** (latest version)
+- **Node.js** (v18+)
+- **Hugo Extended** (v0.110+)
+- **Git**
 - **Python** 3.8+ (for API testing)
-- **Code Editor** (VS Code recommended)
 
 ## Step 1: Environment Setup
 
@@ -62,7 +61,7 @@ node --version
 npm --version
 ```
 
-## Step 2: Project Setup
+## Step 2: Hugo Site Setup
 
 ### Clone Repository
 
@@ -92,6 +91,14 @@ hugo mod get github.com/google/docsy/dependencies@v0.7.1
 # Install required Node.js packages for Docsy
 npm install
 ```
+
+### Run Development Server
+
+```bash
+hugo server
+```
+
+Visit `http://localhost:1313` to view the documentation site.
 
 ## Step 3: Configuration
 
@@ -168,124 +175,140 @@ $warning: #d97706;    // Orange
 $danger: #dc2626;     // Red
 ```
 
-## Step 4: Development Server
+## Step 3: Evidence Analytics Setup
 
-### Start Hugo Server
-
-```bash
-# Start development server with live reload
-hugo server
-
-# Or with drafts and future content
-hugo server -D -F
-```
-
-Visit `http://localhost:1313` to view your site.
-
-### Development Workflow
-
-1. **Edit Content**: Modify files in `content/` directory
-2. **Auto Reload**: Hugo automatically rebuilds and refreshes browser
-3. **Check Console**: Monitor for build errors or warnings
-4. **Test Locally**: Verify all features work before deployment
-
-## Step 5: API Testing
-
-### Python Environment
+### Install Evidence Dependencies
 
 ```bash
-# Install required Python packages
-pip install requests json
-
-# Or create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install requests
+cd evidence
+npm install
+cd ..
 ```
 
-### Test FDA API
+### Build Analytics Data Pipeline
 
 ```bash
-# Run FDA API test
-python test_fda.py
+# Install Python dependencies
+pip install requests duckdb
+
+# Fetch FDA drug data
+python fetch_drug_data.py
+
+# Load data into DuckDB
+python load_to_duckdb.py
 ```
 
-Expected output:
-```
-🧪 Testing FDA API...
-✅ FDA API works!
-📊 Found drug data
-Brand: Lipitor
-Generic: atorvastatin
-```
-
-### Test Pricing Structure
+### Run Evidence Dev Server
 
 ```bash
-# Run pricing data test
-python test_pricing.py
+cd evidence
+npm run dev
+# Opens at http://localhost:3000
 ```
 
-This creates sample pricing data structure for development.
-
-## Step 6: Content Structure
-
-### Understanding the Layout
-
-```
-content/
-├── _index.html          # Homepage (HTML template)
-├── docs/
-│   ├── _index.md        # Main documentation
-│   ├── setup/           # This setup guide
-│   └── api/             # API documentation (future)
-```
-
-### Adding New Content
+### Build Evidence for Production
 
 ```bash
-# Create new documentation page
-hugo new docs/new-page/_index.md
+cd evidence
+npm run sources  # Process data sources
+npm run build    # Build static site
+cd ..
 
-# Create new blog post
-hugo new blog/my-post.md
+# Sync to Hugo static directory
+rsync -av --delete evidence/build/ static/analytics/
 ```
 
-## Step 7: Customization
+## Step 4: Build Complete Site
 
-### Modify Homepage
-
-Edit `content/_index.html` to customize:
-- Hero section messaging
-- Feature blocks
-- Call-to-action buttons
-- Healthcare disclaimers
-
-### Update Navigation
-
-Modify `hugo.toml` menu section to add/remove navigation items.
-
-### Custom CSS
-
-Add custom styles to `assets/scss/_variables_project.scss` or create new SCSS files.
-
-## Step 8: Deployment Preparation
-
-### Build Static Site
+### Build Hugo Site
 
 ```bash
-# Build production site
+# Build Hugo site with embedded Evidence analytics
 hugo
 
-# Output will be in public/ directory
+# Preview production build
+hugo server
 ```
 
-### GitHub Pages Setup
+### Automated Build Script
 
-1. Create GitHub repository
-2. Push code to `main` branch
-3. Enable GitHub Pages in repository settings
-4. Choose source: GitHub Actions or `docs/` folder
+Use the convenience script to rebuild everything:
+
+```bash
+chmod +x build-analytics.sh
+./build-analytics.sh
+```
+
+## Step 5: Flowise AI Setup (Coming Soon)
+
+- Install Flowise locally or use Flowise Cloud
+- Configure healthcare data workflows
+- Connect to FDA and pricing APIs
+- Embed chat interface in Hugo site
+
+## Project Structure
+
+```
+HealthScope-AI/
+├── content/                    # Hugo content
+│   └── docs/                   # Documentation pages
+│       ├── analytics/          # Analytics documentation
+│       ├── drug-data/          # Drug data docs
+│       ├── flowise/            # Flowise integration docs
+│       └── setup/              # Setup guides
+│
+├── evidence/                   # Evidence.dev analytics project
+│   ├── pages/                  # Evidence markdown pages
+│   │   ├── index.md            # Analytics home
+│   │   └── fda-drugs.md        # FDA drug dashboard
+│   ├── sources/                # Data source connections
+│   │   ├── fda_data/           # FDA data source
+│   │   │   ├── connection.yaml # CSV connection config
+│   │   │   ├── fda_drugs.csv   # Drug data CSV
+│   │   │   └── healthcare.duckdb # DuckDB database
+│   ├── build/                  # Built Evidence site (gitignored)
+│   ├── node_modules/           # Evidence dependencies (gitignored)
+│   ├── package.json            # Evidence dependencies
+│   └── evidence.config.yaml   # Evidence configuration
+│
+├── static/                     # Hugo static files
+│   └── analytics/              # Built Evidence dashboard (synced from evidence/build)
+│
+├── layouts/                    # Custom Hugo layouts
+│   └── shortcodes/             # Custom Hugo shortcodes
+│       ├── evidence-dashboard.html
+│       ├── drug-table.html
+│       └── flowise.html
+│
+├── data/                       # Hugo data files (Evidence exports)
+│   ├── fda_data/               # FDA drug data (parquet)
+│   └── manifest.json           # Data manifest
+│
+├── fetch_drug_data.py          # FDA API data fetcher
+├── load_to_duckdb.py           # DuckDB data loader
+├── build-analytics.sh          # Automated build script
+├── export-charts.js            # Chart export utility
+├── fda_drug_data.json          # Downloaded FDA data
+│
+├── hugo.toml                   # Hugo configuration
+├── package.json                # Node.js dependencies (Hugo)
+└── README.md                   # Project documentation
+```
+
+## API Integration
+
+### FDA OpenAPI
+
+- **Endpoint**: `https://api.fda.gov/drug/`
+- **Authentication**: None required
+- **Rate Limits**: 240 requests per minute, 1000 per hour
+- **Documentation**: https://open.fda.gov/apis/
+
+### Drug Pricing APIs
+
+- **GoodRx API**: Free tier (1000 calls/month)
+- **Pharmacy Websites**: Web scraping for price comparison
+- **Medicare Data**: Public pricing databases
 
 ## Troubleshooting
 
@@ -317,6 +340,19 @@ npm install
 - **Docsy Theme Docs**: https://www.docsy.dev/docs/
 - **GitHub Issues**: Report problems in project repository
 
+## Learning Objectives
+
+This project focuses on:
+
+- **Healthcare Data Integration**: Working with FDA and pricing APIs
+- **Data Pipeline Development**: Python-based ETL for healthcare data
+- **Analytics & BI**: SQL-based data analysis with Evidence.dev
+- **Embedded Databases**: Using DuckDB for analytical workloads
+- **No-Code AI Development**: Using Flowise for conversational interfaces
+- **Documentation Best Practices**: Professional Hugo site with Docsy
+- **Static Site Generation**: Building fast, secure documentation sites
+- **Compliance Awareness**: Healthcare data handling and disclaimers
+
 ## Next Steps
 
 Once setup is complete:
@@ -328,4 +364,4 @@ Once setup is complete:
 
 ---
 
-**Setup complete!** You now have a fully functional HealthScope AI documentation site ready for development.
+**Setup complete!** You now have a fully functional HealthScope AI documentation site with integrated analytics ready for development.
